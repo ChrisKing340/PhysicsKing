@@ -7,14 +7,13 @@ Math: [https://github.com/ChrisKing340/MathSIMD](https://github.com/ChrisKing340
 C\+\+ classes support json for data transport. For the latest version of json visit:
 json: [https://github.com/nlohmann/json](https://github.com/nlohmann/json)
 
+  stream output:
+##  Scalar:
   Mass m;
   m = 10._kg;
   Accel a0;
   a = 4._mPerSecSq;
   auto F = m * a0;
-
-  stream output:
-##  Scalar:
   cout << "F = " << m << " * " << a0 << "\n";
 ###  F = { Mass 10 kg } * { Accel 4 m/s^2 }
   cout << "F = " << F << "\n";
