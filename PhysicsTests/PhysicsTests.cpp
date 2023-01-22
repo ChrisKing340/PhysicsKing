@@ -14,8 +14,8 @@ Contact:        ChrisKing340@gmail.com
 
 References:     json https://github.com/nlohmann/json
                 SIMD math functions utilize https://github.com/microsoft/DirectXMath
-                Math class wrappers 
-                Physics primitives 
+                Math class wrappers https://github.com/ChrisKing340/MathSIMD
+                Physics primitives https://github.com/ChrisKing340/PhysicsKing
                 Geometric primitives, intersection testing, meshes https://github.com/ChrisKing340/GeometryKing
 
 MIT License
