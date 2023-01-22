@@ -162,10 +162,10 @@
     <ClCompile Include="PhysicsTests.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MathSIMD\MathSIMD.vcxproj">
+    <ProjectReference Include="..\..\MathSIMD\MathSIMD.vcxproj">
       <Project>{32bfcbad-4c3c-455d-b45d-0b00742333eb}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\PhysicsKing\PhysicsKing.vcxproj">
+    <ProjectReference Include="..\PhysicsKing.vcxproj">
       <Project>{29e58da0-56b4-45b9-b5a5-2f964fa79a27}</Project>
     </ProjectReference>
   </ItemGroup>

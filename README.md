@@ -2,11 +2,34 @@
 
 Basic physics classes representing real world motion. High degree of inline code for readability and compiled only if used. Intended as the foundation for "made from scratch" game engines. Intrinsic SIMD acceleration from project:
 
-Math: [https://github.com/ChrisKing340/MathSIMD](https://github.com/ChrisKing340/MathSIMD)
-   
+Math: [https://github.com/ChrisKing340/MathSIMD](https://github.com/ChrisKing340/MathSIMD)  
    
 C\+\+ classes support json for data transport. For the latest version of json visit:
 json: [https://github.com/nlohmann/json](https://github.com/nlohmann/json)
+
+  Mass m;
+  m = 10._kg;
+  Accel a0;
+  a = 4._mPerSecSq;
+  auto F = m * a0;
+
+  stream output:
+##  Scalar:
+  cout << "F = " << m << " * " << a0 << "\n";
+###  F = { Mass 10 kg } * { Accel 4 m/s^2 }
+  cout << "F = " << F << "\n";
+###  F = { Strength 40 N }
+
+##  Vector:
+  Acceleration a;
+  auto direction = float3(0.f, 1.f, 0.f);
+  a.Set_magnitude(a0);
+  a.Set_unit_direction(direction); 
+  auto F = m * a;
+  cout << "F = " << F << "\n";
+###  F = {{ Strength 40 N } * Dir:{ x:         0 y:         1 z:         0 } }
+  cout << "F = " << F.GetVector() << "\n";
+###  F = { x:         0 y:        40 z:         0 }
 
 Compiled with Visual Studio 2019, C\+\+17, 64 Bit Windows 10
 
@@ -14,8 +37,7 @@ This code is the foundation of a fully functional DirectX 12 game engine and phy
 
 ## Physics foundation
 Foundation classes represent a unit of measure with a scalar.  The classes just keeps one value with internal storage as a SI unit of measure.  String literals implemented to allow definition with the unit of measure desired.  Operator overloading to act as a base type and also supports streams and json from/to;
-Ex: Length(10_m)
-Ex: Length(10_ft)
+Ex: Length(10_m) Length(10_ft)
 
     #include "Physics\UnitOfMeasure.h"
     namespace UnitOfMeasure;

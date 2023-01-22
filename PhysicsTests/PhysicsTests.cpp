@@ -43,9 +43,9 @@ SOFTWARE.
 
 #include <iostream>
 // Math
-#include "..\MathSIMD\MathSIMD.h"
+#include "..\..\MathSIMD\MathSIMD.h"
 // Physics
-#include "..\PhysicsKing\Physics.h"
+#include "..\Physics.h"
 
 using namespace std;
 using namespace King;
