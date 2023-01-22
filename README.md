@@ -12,7 +12,7 @@ json: [https://github.com/nlohmann/json](https://github.com/nlohmann/json)
   Mass m;
   m = 10._kg;
   Accel a0;
-  a = 4._mPerSecSq;
+  a0 = 4._mPerSecSq;
   auto F = m * a0;
   cout << "F = " << m << " * " << a0 << "\n";
 ###  F = { Mass 10 kg } * { Accel 4 m/s^2 }
