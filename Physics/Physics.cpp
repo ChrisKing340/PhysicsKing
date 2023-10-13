@@ -291,7 +291,7 @@ Distance King::operator*(const King::Quaternion& qIn, const King::Distance& dIn)
 }
 Distance King::operator*(const King::Distance& dIn, const King::Quaternion& qIn)
 {
-    auto dir = FloatPoint3(DirectX::XMVector3InverseRotate(dIn.Get_unit_direction(), qIn.GetVecConst()));
+    auto dir = float3(DirectX::XMVector3InverseRotate(dIn.Get_unit_direction(), qIn.GetVecConst()));
     return Distance(dIn.Get_magnitude(), dir);
 }
 UnitOfMeasure::Energy King::operator*(const Force& fIn, const Distance& dIn)
@@ -348,13 +348,13 @@ void King::Rotation::SetFrom(AngularVelocity omegaIn, UnitOfMeasure::Time tIn)
 *   Position
 ******************************************************************************/
 // Streams
-std::ostream& King::operator<< (std::ostream& os, const Position& in) { return os << "{" << " Pos: " << in.Get_position() << " }"; } // text out
-std::wostream& King::operator<< (std::wostream& os, const Position& in) { return os << L"{" << L" Pos: " << in.Get_position() << L" }"; } // text out
-std::istream& King::operator>> (std::istream& is, Position& out) { return is >> out._position; } // binary in
-std::wistream& King::operator>> (std::wistream& is, Position& out) { return is >> out._position; } // binary in
+std::ostream& King::operator<< (std::ostream& os, const Position& in) { return os << "{" << " Pos: " << (float3)in << " }"; } // text out
+std::wostream& King::operator<< (std::wostream& os, const Position& in) { return os << L"{" << L" Pos: " << (float3)in << L" }"; } // text out
+std::istream& King::operator>> (std::istream& is, Position& out) { return is >> out; } // binary in
+std::wistream& King::operator>> (std::wistream& is, Position& out) { return is >> out; } // binary in
 // json
-void King::to_json(json& j, const Position& from) { j = json{ {"Pos", from.Get_position()} }; }
-void King::from_json(const json& j, Position& to) { j.at("Pos").get_to(to.Get_position()); }
+void King::to_json(json& j, const Position& from) { j = json{ {"Pos", from} }; }
+void King::from_json(const json& j, Position& to) { j.at("Pos").get_to(to); }
 // operators
 // methods
 float3 Position::To_SphericalCoordinates(void) const
@@ -362,9 +362,9 @@ float3 Position::To_SphericalCoordinates(void) const
     // rho: distance to the origin
     // theta: counter-clockwise rotation about the z-axis
     // phi: altitude signed angle from the xy plane, 0 to pi/2 above the plane, 0 to -pi/2 below the plane.
-    float rho = float3(_position).GetMagnitude();
-    float theta = std::atan2f(_position.GetY(), _position.GetX());
-    float phi = std::acosf(_position.GetZ() / rho) - DirectX::XM_PIDIV2;
+    float rho = GetMagnitude();
+    float theta = std::atan2f(GetY(), GetX());
+    float phi = std::acosf(GetZ() / rho) - DirectX::XM_PIDIV2;
 
     return float3(rho, theta, phi);
 }
@@ -379,7 +379,7 @@ void Position::Set_SphericalCoordinates(const float& rhoIn, const float& thetaIn
     float3 cartesian(x, y, z);
     // magnitude
     cartesian *= rhoIn;
-    _position.Set(cartesian, 1.0f);
+    Set(cartesian);
 }
 // functions
 Position King::Physics::Mechanics_Trajectory(const Position& initialPosIn, const Velocity& initialVelIn, const Acceleration& constAccelIn, const UnitOfMeasure::Time& tIn)
@@ -455,8 +455,8 @@ void King::to_json(json& j, const PhysicsState& from)
         {"_angularMomentum", from._angularMomentum},
         {"_pointOnAxisOfRotationLocalSpace", from._pointOnAxisOfRotationLocalSpace},
         {"_rotation", from._rotation},
-        {"_principalMomentsOfInertia", from._principalMomentsOfInertia},
-        {"_productsOfInertia", from._productsOfInertia},
+        //{"_principalMomentsOfInertia", from._principalMomentsOfInertia},
+        //{"_productsOfInertia", from._productsOfInertia},
         {"_linearAcceleration", from._linearAcceleration},
         {"_linearVelocity", from._linearVelocity},
         {"_linearMomentum", from._linearMomentum}/*,
@@ -473,8 +473,8 @@ void King::from_json(const json& j, PhysicsState& to)
     j.at("_angularMomentum").get_to(to._angularMomentum);
     j.at("_pointOnAxisOfRotationLocalSpace").get_to(to._pointOnAxisOfRotationLocalSpace);
     j.at("_rotation").get_to(to._rotation);
-    j.at("_principalMomentsOfInertia").get_to(to._principalMomentsOfInertia);
-    j.at("_productsOfInertia").get_to(to._productsOfInertia);
+    //j.at("_principalMomentsOfInertia").get_to(to._principalMomentsOfInertia);
+    //j.at("_productsOfInertia").get_to(to._productsOfInertia);
     j.at("_linearAcceleration").get_to(to._linearAcceleration);
     j.at("_linearVelocity").get_to(to._linearVelocity);
     j.at("_linearMomentum").get_to(to._linearMomentum);
@@ -498,26 +498,24 @@ void King::PhysicsRigidBody::Update(const UnitOfMeasure::Time& dtIn)
 
     // Work
     Force netForce;
-    _forcesActingOnBody;
+    Torque netTorque;
+
     for (auto& appliedForce : _forcesActingOnBody)
     {
         Force& F = appliedForce.first;
         Distance& r = appliedForce.second;
-        auto l = (UnitOfMeasure::Length)r;
 
         netForce += F;
 
-        // *** TO DO ***
-        // rotation
+        // torque, t = r x F
+        Torque t(r,F);
+        netTorque += t;
     }
     _forcesActingOnBody.clear();
 
     // Newton's 2nd law
-    i._linearAcceleration = netForce / _mass;
-
-    // constant over time step
-    f._linearAcceleration = i._linearAcceleration;
-    f._angularAcceleration = i._angularAcceleration;
+    f._linearAcceleration = netForce / Get_mass();
+    f._angularAcceleration = static_cast<King::AngularAcceleration>(netTorque * Get_inertiaTensorInverse());
 
     // calculate
     f._linearVelocity = i._linearVelocity + f._linearAcceleration * dtIn; // m/s
@@ -525,15 +523,6 @@ void King::PhysicsRigidBody::Update(const UnitOfMeasure::Time& dtIn)
 
     f._positionWorldSpace = i._positionWorldSpace + f._linearVelocity * dtIn;
     f._rotation = i._rotation + f._angularVelocity * dtIn;
-
-    // depends on geometry and direction of revolution
-    // *** TO DO ***
-    if ((bool)f._rotation && f._rotation != i._rotation)
-    {
-        float r = 1.0f; // radius
-        f._principalMomentsOfInertia = 0.4f * _mass * r * r; // sphere
-        f._productsOfInertia = float3(0.f, 0.f, 0.f); // sphere
-    }
 
     // Momentum
     // *** TODO *** implement momentum classes math operators
@@ -551,44 +540,50 @@ void King::PhysicsRigidBody::Update(const UnitOfMeasure::Time& dtIn)
 /*
 *  License:
     The method below is very special. It is a full collision processor using the impulse method developed.
-    Sources do partial implementations that were used as reference (Game Programming Gems 4 foundation to start) and was
+    Sources do partial implementations that were used as reference (Game Programming Gems 4) and was
     expanded to what we have here by applying a full Physics modeling of an oblique collision, material restitution, friction, linear and
-    rotational reactions resulting from collisions. None of that was in the base started with Gems4 (ex: collisions were
-    assumed along the line of contact and not oblique). You are free to distribute this code and use it without any
-    expressed warranty for fitness of use and purpose and you must cite the author and include this license in the code
-    Author: Christopher H. King, P.E. (c) Copyright 2022
+    rotational reactions resulting from collisions. Gems4 (ex: collisions were assumed along the line of contact and not oblique). 
+    About the author: I have a bachelor degree in Mechanical Engineering from Purdue University and although the below is trivial and taught to me, computer
+    science classes and books implement this like they are reinventing or discovering it for the first time or they peice it together from
+    other sources and it leaves out portions. You are free to distribute this code and use it without any
+    expressed warranty for fitness of use and purpose. You must cite the author and include this license in the code
+    Author: Christopher H. King, PE (c) Copyright 2022
 */
 void King::PhysicsRigidBody::ProcessCollisionWithObject(PhysicsRigidBody& moInOut, const float e, const UnitOfMeasure::Time& dt, float3 collisionPtIN, const float penetrationIn)
 {
     // Oblique hit, restitution, friction, linear and rotational reactions from collisions
-    // Master work!
 
     // Inputs
+    // World space positions at time of initial collision:
+    const auto& p1i = GetInitialState().Get_positionWorldSpace();
+    const auto& p2i = moInOut.GetInitialState().Get_positionWorldSpace();
+    // Linear velocities before collision:
     const auto& v1i = GetInitialState().Get_linearVelocity();
     const auto& v2i = moInOut.GetInitialState().Get_linearVelocity();
+    // Angular velocities before collision:
     const auto& ω1i = GetInitialState().Get_angularVelocity();
     const auto& ω2i = moInOut.GetInitialState().Get_angularVelocity();
+    // Mass of both objects:
     const auto& m1 = Get_mass();
     const auto& m2 = moInOut.Get_mass();
+    // Math optimization:
     const auto& m1_inv = Get_invMass();
     const auto& m2_inv = moInOut.Get_invMass();
-    // Outputs
-    Velocity v1f, v2f;
-    AngularVelocity ω1f, ω2f;
 
-    // Assumption:, the collision has already been verified to occur
-    // determine the normal direction at the point of collision.
-    // line of impact
-    float3 n_axis = GetInitialState().Get_positionWorldSpace() - moInOut.GetInitialState().Get_positionWorldSpace(); // o2 -> o1 ; (o1 - o2)
+    // Outputs the new linear and angular velocity of both objects
+
+    // Assumption: The collision has already been verified to occur
+    // Determine the normal direction at the point of collision referred to as the line of impact (axis):
+    float3 n_axis = p1i - p2i; // o2 -> o1 ; (o1 - o2); object 2 pointing to object 1
     n_axis.MakeNormalize();
     // collision point must be an input
-    float3 r1 = collisionPtIN - GetInitialState().Get_positionWorldSpace(); // Note: PhysicsBody will have a local offset to center of mass we would also need to subtract
-    float3 r2 = collisionPtIN - moInOut.GetInitialState().Get_positionWorldSpace();
+    float3 r1 = collisionPtIN - p1i; // Note: PhysicsBody may have a local offset to center of mass we would also need to subtract
+    float3 r2 = collisionPtIN - p2i;
 
-    // Works out the bias to prevent sinking over time
-    const float allowedPenetration = 0.1f;
-    const float biasFactor = 0.1f; // 0.1 to 0.3
-    float biasFactorValue = posCorrectOnOff ? biasFactor : 0.0f;
+    // Works out the bias to prevent sinking over time (constant repulsive force between the two objects in contact so they behave as solids)
+    const float allowedPenetration = 0.1f; // small factor to not repluse outward and leave as is. This way multiple frames do not bounce this back and forth between out of contact and penetrating through contact
+    const float biasFactor = 0.1f; // 0.1 to 0.3 /
+    float biasFactorValue = PhysicsRigidBody::posCorrectOnOff ? biasFactor : 0.0f;
     float inv_dt = dt > 0.0f ? 1.0f / dt : 0.0f;
     auto val = penetrationIn - allowedPenetration;
     float bias = biasFactorValue * inv_dt * fmax(0.0f, val); // to add to normal axis momentum change
@@ -597,11 +592,12 @@ void King::PhysicsRigidBody::ProcessCollisionWithObject(PhysicsRigidBody& moInOu
         // calculate the impulse, J, required to prevent the objects intersecting 
         float3 J; // ͢J = ͢Fave * 𝛥t; since F = ma,  ͢J = m * 𝛥v ; through integration over time, ti, to time, tf.
         float J_num, J_dem;
-        // calculate the relative velocities along the normal axis
+        // calculate the relative velocities along the normal axis at the point of contact
         float3 v1atCollisionPt = (float3)v1i + float3::CrossProduct(ω1i, r1); // v = vi + ͢𝜔 x ͢r
         float3 v2atCollisionPt = (float3)v2i + float3::CrossProduct(ω2i, r2); // v = vi + ͢𝜔 x ͢r
         float3 v_rel = (v1atCollisionPt - v2atCollisionPt);
-        float vn = v_rel.DotProduct(n_axis);
+        // magnitude along the normal axis
+        float vn = v_rel.DotProduct(n_axis); 
 
         // rotation about point of collision
         float3 r1_n_axis = r1.CrossProduct(n_axis);
@@ -616,7 +612,7 @@ void King::PhysicsRigidBody::ProcessCollisionWithObject(PhysicsRigidBody& moInOu
             0, 0, i1, 0,
             0, 0, 0, 1.f);
         auto I1_inv = DirectX::XMMatrixInverse(nullptr, I);
-        // replace with _inertiaTensorInverse when implemented
+        // replace with _inertiaTensorInverse when implemented; for games, this is good enough
 
         auto i2 = 2.0f / 5.0f * m2;
         I = DirectX::XMMATRIX(i2, 0, 0, 0,
@@ -634,8 +630,10 @@ void King::PhysicsRigidBody::ProcessCollisionWithObject(PhysicsRigidBody& moInOu
         j = fmaxf(j, 0.0f);
 
         J = j * n_axis;
-        // solve for final states
-        auto v1n_f = J * m1_inv;
+        // Solve for final states from the normal portion of forces involved
+        // Line velocity: since momentum is mass * velocity, we just need to divide by mass
+        // Angular velocity: cross the linear momentum with the lever (distance from center to the point of contact) for angular momentum the divide by angular inertia
+        auto v1n_f = J * m1_inv; 
         auto ω1n_f = r1.CrossProduct(J) * I1_inv;
         auto v2n_f = J * m2_inv;
         auto ω2n_f = r2.CrossProduct(J) * I2_inv;
@@ -653,7 +651,8 @@ void King::PhysicsRigidBody::ProcessCollisionWithObject(PhysicsRigidBody& moInOu
         J_dem = m1_inv + m2_inv + t_axis.DotProduct(float3::CrossProduct(r1_t_axis * I1_inv, r1) + float3::CrossProduct(r2_t_axis * I2_inv, r2));
         j = J_num / J_dem;
 
-        float frictionCoeff = 0.1f;
+        // friction is the force that will apply force tangent to the point of contact
+        float frictionCoeff = (Get_coefficientOfFriction() + moInOut.Get_coefficientOfFriction()) * 0.5f; // average the surface roughness together
         float maxJ = frictionCoeff * j;
         j = Clamp(j, -maxJ, maxJ);
 
@@ -665,25 +664,21 @@ void King::PhysicsRigidBody::ProcessCollisionWithObject(PhysicsRigidBody& moInOu
         auto v2t_f = J * m2_inv;
         auto ω2t_f = r2.CrossProduct(J) * I2_inv;
 
-        // Final
-        // Note: changes to object 2 are opposite of those to object 1
-        v1f = v1i + v1n_f + v1t_f;
-        v2f = v2i - v2n_f - v2t_f;
-
-        ω1f = ω1i + ω2n_f + ω2t_f;
-        ω2f = ω1i - ω2n_f - ω2t_f;
-
         // Output
         auto& f1 = GetFinalState();
         auto& f2 = moInOut.GetFinalState();
 
-        f1.Set_linearVelocity(v1f);
-        f1.Set_angularVelocity(ω1f);
+        // Final
+        // Add the changes due to normal and tangential forces to the initial state
+        f1.Set_linearVelocity(v1i + v1n_f + v1t_f);
+        f1.Set_angularVelocity(ω1i + ω2n_f + ω2t_f);
 
-        f2.Set_linearVelocity(v2f);
-        f2.Set_angularVelocity(ω2f);
+        // Changes to object 2 are opposite of those to object 1 (Newton's 3rd Law)
+        f2.Set_linearVelocity(v2i - v2n_f - v2t_f);
+        f2.Set_angularVelocity(ω2i - ω2n_f - ω2t_f);
     }
 }
+
 // functions
 
 // Functions to remind us of what velocity and acceleration is without their magnitudes, the tangent and principle unit vector of motion.  If Acceleration is zero, we are moving in a straight line.

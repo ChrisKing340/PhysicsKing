@@ -157,6 +157,10 @@ namespace King {
         inline Torque & operator-= (const Torque & in) { *this = *this - in; return *this; }
         inline Torque & operator*= (const Torque & in) { *this = *this * in; return *this; }
         inline Torque & operator/= (const Torque & in) { *this = *this / in; return *this; }
+        // transforms; AngularAcceleration would be the return type if the matrix is an inverse inertia tensor so you would just cast to AngularAcceleration
+        inline Torque operator* (const DirectX::XMMATRIX& m) { return Torque(_magnitude, DirectX::XMVector3TransformNormal(_unit_direction, m)); }
+        inline Torque& operator*= (const DirectX::XMMATRIX& m) { Set_unit_direction(DirectX::XMVector3TransformNormal(_unit_direction.GetVecConst(), m)); return *this; }
+        
         // Init/Start/Stop/Destroy
         // Functionality
         bool                                IsZero() const { return _magnitude == 0.f; }
@@ -174,7 +178,9 @@ namespace King {
         void __vectorcall                   SetVector(const float3& vecotrIN){ _magnitude = float3::Magnitude(vecotrIN); _unit_direction = float3::Normal(vecotrIN); }
         void                                Set_magnitude(const float &_magnitude_IN) { _magnitude = abs(_magnitude_IN); if (_magnitude != _magnitude_IN) { _unit_direction = -_unit_direction; }; }
         void __vectorcall                   Set_unit_direction(const float3 &_unit_direction_IN) { _unit_direction = float3::Normal(_unit_direction_IN); }
-    
+        inline void                         SetZero() { _magnitude = 0.f; _unit_direction = DirectX::g_XMZero; }
+        inline void                         SetZeroIfNear(const float epsilon = 0.00005f) { auto mask = DirectX::XMVectorLess(DirectX::XMVectorAbs(_unit_direction), DirectX::XMVectorReplicate(epsilon)); DirectX::XMVectorSelect(_unit_direction, DirectX::XMVectorZero(), mask); _unit_direction.Normalize(); }
+
         // Input & Output functions that can have access to protected & private data
         friend std::ostream& operator<< (std::ostream& os, const Torque& in);
         friend std::istream& operator>> (std::istream& is, Torque& out);

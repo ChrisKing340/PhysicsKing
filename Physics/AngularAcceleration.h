@@ -171,8 +171,14 @@ namespace King {
         float                               GetValueSI() const { return UnitOfMeasure::mPerSecSq * _magnitude; }
         // Assignments
         // Note: set unit direction before magnitude in case sign of magnitude is switched
+        void __vectorcall                   Set(const float3 vectorIn) { _magnitude = float3::Magnitude(vectorIn); _unit_direction = float3::Normal(vectorIn); }
+        void                                SetX(const float x) { auto d = GetVector(); d.SetX(x); Set(d); }
+        void                                SetY(const float y) { auto d = GetVector(); d.SetY(y); Set(d); }
+        void                                SetZ(const float z) { auto d = GetVector(); d.SetZ(z); Set(d); }
         void                                Set_magnitude(const float &_magnitude_IN) { _magnitude = abs(_magnitude_IN); if (_magnitude != _magnitude_IN) { _unit_direction = -_unit_direction; }; }
-        void __vectorcall                   Set_unit_direction(const float3 &_unit_direction_IN) { _unit_direction = float3::Normal(_unit_direction_IN); }
+        void __vectorcall                   Set_unit_direction(const float3 _unit_direction_IN) { _unit_direction = float3::Normal(_unit_direction_IN); }
+        inline void                         SetZero() { _magnitude = 0.f; _unit_direction = DirectX::g_XMZero; }
+        inline void                         SetZeroIfNear(const float epsilon = 0.00005f) { auto mask = DirectX::XMVectorLess(DirectX::XMVectorAbs(_unit_direction), DirectX::XMVectorReplicate(epsilon)); DirectX::XMVectorSelect(_unit_direction, DirectX::XMVectorZero(), mask); _unit_direction.Normalize(); }
         // Input & Output functions that can have access to protected & private data
         friend std::ostream& operator<< (std::ostream& os, const AngularAcceleration& in);
         friend std::istream& operator>> (std::istream& is, AngularAcceleration& out);

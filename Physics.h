@@ -74,12 +74,14 @@ using json = nlohmann::json;
 #include "Physics/AngularAcceleration.h"
 #include "Physics/AngularVelocity.h"
 #include "Physics/Rotation.h"
-// Properties
-#include "Physics/PhysicsMaterial.h"
-#include "Physics/PhysicsState.h"
-//#include "PhysicsObject.h"
-#include "Physics/PhysicsRigidBody.h"
+
+// Advanced Properties
 #include "Physics/SecondOrderDynamicControl.h"
+#include "Physics/PhysicsState.h"
+#include "Physics/PhysicsRigidBody.h"
+#include "Physics/PhysicsMaterial.h"
+// do not reference here as they create circular references
+//#include "Physics/PhysicsObject.h"
 
 // Below defines a few functions to solve specific physics cases to show use of
 // the library. Commented some examples of the classes use and the equations

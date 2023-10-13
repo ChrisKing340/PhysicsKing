@@ -147,7 +147,9 @@ namespace King {
         void                                Set(const Quaternion& quatIn) { _rotation = quatIn; float3 eulerXYZ(quatIn.GetEulerAngles()); _magnitude = float3::Magnitude(eulerXYZ); _unit_direction = float3::Normal(eulerXYZ); }
         void                                Set_magnitude(const float& _magnitude_IN_m) { _magnitude = abs(_magnitude_IN_m); if (_magnitude != _magnitude_IN_m) { _unit_direction = -_unit_direction; }; CalculateQuat(); }
         void __vectorcall                   Set_unit_direction(const float3 _unit_direction_IN) { _unit_direction = float3::Normal(_unit_direction_IN); CalculateQuat(); }
-        
+        inline void                         SetZero() { _magnitude = 0.f; _unit_direction = DirectX::g_XMZero; }
+        inline void                         SetZeroIfNear(const float epsilon = 0.00005f) { auto mask = DirectX::XMVectorLess(DirectX::XMVectorAbs(_unit_direction), DirectX::XMVectorReplicate(epsilon)); DirectX::XMVectorSelect(_unit_direction, DirectX::XMVectorZero(), mask); _unit_direction.Normalize(); }
+
         void                                SetFrom(const AngularAcceleration alphaIn, const UnitOfMeasure::TimeSq tSqIn); // double integration
         void                                SetFrom(const AngularVelocity omegaIn, const UnitOfMeasure::Time tIn); // single integration
 
