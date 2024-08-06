@@ -1,9 +1,9 @@
 ﻿#include "..\Physics.h"
 
-#ifdef DEBUG
-#pragma comment(lib, "..\\..\\MathSIMD\\x64\\Debug\\MathSIMD.lib")
+#ifdef _DEBUG
+#pragma comment(lib, "..\\..\\Build\\MathSIMD\\x64\\Debug\\MathSIMD.lib")
 #else
-// *** TO DO ***
+#pragma comment(lib, "..\\..\\Build\\MathSIMD\\x64\\Release\\MathSIMD.lib")
 #endif
 
 using namespace King;
