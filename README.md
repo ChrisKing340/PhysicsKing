@@ -3,11 +3,13 @@
 This repository contains basic physics classes to implement [Sir Isac Newton's](https://en.wikipedia.org/wiki/Isaac_Newton) 3 Laws of physics. 
 ## Why do you need this?
     1) Data management of scalar and vector direction speeds up your code when accessed > 1 per update.
-    2) Data validation along with zeroing component wise vectors when near epsilon is built in (stoping jitter and floating point errors from accumulating)
-    3) SIMD Math accelerations and seemless use as scalars or vectors is automatic and hidden behind the data type by use of overridden operators.
+    2) Data validation along with zeroing component wise vectors when near epsilon (resetting floating point error accumulation).
+    3) SIMD Math acceleration.
     4) High degree of inline code for readability and compiled only if used. 
-    5) Some basic derived formula are included in data types for both linear and angular motion when types are used together. Using auto data type will allow outputs of math operations to provide the new physics type when it changes
-    6) Unit of measures for both SI and English Imperial is built in. Allows for simulation use to model real world events.
+    5) Some basic derived formula are included for both linear and angular motion.
+    6) Optional Unit of measures for both SI and English Imperial.
+    7) Data visualization enable through stream output formating.
+    8) JSON built in for serializing and saving/transporting data in a standard format.
     
 Intrinsic SIMD acceleration from project:
 Math: [https://github.com/ChrisKing340/MathSIMD](https://github.com/ChrisKing340/MathSIMD)  
