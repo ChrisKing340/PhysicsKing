@@ -1,7 +1,15 @@
 # PhysicsKing
 
-Basic physics classes representing real world motion. High degree of inline code for readability and compiled only if used. Intended as the foundation for "made from scratch" game engines. Intrinsic SIMD acceleration from project:
-
+This repository contains basic physics classes to implement [Sir Isac Newton's](https://en.wikipedia.org/wiki/Isaac_Newton) 3 Laws of physics. 
+Why do you need this?
+    1) Data management of scalar and vector direction speeds up your code when accessed > 1 per update.
+    2) Data validation along with zeroing component wise vectors when near epsilon is built in (stoping jitter and floating point errors from accumulating)
+    3) SIMD Math accelerations and seemless use as scalars or vectors is automatic and hidden behind the data type by use of overridden operators.
+    4) High degree of inline code for readability and compiled only if used. 
+    5) Some basic derived formula are included in data types for both linear and angular motion when types are used together. Using auto data type will allow outputs of math operations to provide the new physics type when it changes
+    6) Unit of measures for both SI and English Imperial is built in. Allows for simulation use to model real world events.
+    
+Intrinsic SIMD acceleration from project:
 Math: [https://github.com/ChrisKing340/MathSIMD](https://github.com/ChrisKing340/MathSIMD)  
    
 C\+\+ classes support json for data transport. For the latest version of json visit:
