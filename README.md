@@ -1,7 +1,7 @@
 # PhysicsKing
 
 This repository contains basic physics classes to implement [Sir Isac Newton's](https://en.wikipedia.org/wiki/Isaac_Newton) 3 Laws of physics. 
- Why do you need this?
+## Why do you need this?
     1) Data management of scalar and vector direction speeds up your code when accessed > 1 per update.
     2) Data validation along with zeroing component wise vectors when near epsilon is built in (stoping jitter and floating point errors from accumulating)
     3) SIMD Math accelerations and seemless use as scalars or vectors is automatic and hidden behind the data type by use of overridden operators.
