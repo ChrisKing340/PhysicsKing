@@ -161,7 +161,7 @@ namespace King {
 
         DirectX::XMFLOAT3 angVel = m_angVelocity;
 
-        quat Qvel = (m_rot * 0.5f) * quat(angVel.x, angVel.y, angVel.z);
+        Quaternion Qvel = (m_rot * 0.5f) * Quaternion(angVel.x, angVel.y, angVel.z);
         m_rot += Qvel * dt;
         m_rot.MakeNormalize(); // D3DXQuaternionNormalize(&m_rot, &m_rot);
 

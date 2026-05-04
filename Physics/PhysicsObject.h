@@ -313,13 +313,13 @@ inline void King::PhysicsObject::Update(const UnitOfMeasure::Time& dt)
         // Integrate acceleration and velocity to rotation
         // _angularVelocityCofExt to rotate the heading vector first
         float3 velDir = _linearVelocityCofM.Get_unit_direction();
-        Quaternion quatRotationFinal;
+        Quaternion QuaternionRotationFinal;
 
-        Quaternion headingQuat;
-        headingQuat.Set(float3(0.f, 0.f, -1.f), velDir); // from North to current direction
+        Quaternion headingQuaternion;
+        headingQuaternion.Set(float3(0.f, 0.f, -1.f), velDir); // from North to current direction
         Rotation radiansMovedHeading(_angularVelocityCofExt, dt);
-        quatRotationFinal = headingQuat * radiansMovedHeading.GetQuaternion();
-        _linearVelocityCofM.Set_unit_direction(DirectX::XMVector3Rotate(float3(0.f, 0.f, -1.f), quatRotationFinal));
+        QuaternionRotationFinal = headingQuaternion * radiansMovedHeading.GetQuaternion();
+        _linearVelocityCofM.Set_unit_direction(DirectX::XMVector3Rotate(float3(0.f, 0.f, -1.f), QuaternionRotationFinal));
         // 
         // Dynamics with simple Euler integration with mid-point optimization
         // At a specific time:

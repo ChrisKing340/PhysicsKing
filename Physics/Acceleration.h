@@ -46,8 +46,8 @@ SOFTWARE.
 #include "..\..\MathSIMD\MathSIMD.h"
 #include "..\Physics\UnitOfMeasure.h"
 #include "..\Physics\Force.h"
-// 3rdPart namespace
-#include "..\..\json\include\nlohmann\json.hpp"
+// Json for modern C++ https://github.com/nlohmann/json
+#include "..\json\single_include\nlohmann\json.hpp"
 using json = nlohmann::json;
 
 /******************************************************************************

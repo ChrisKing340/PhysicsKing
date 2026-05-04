@@ -76,10 +76,10 @@ namespace King {
         Rotation() = default;
         explicit Rotation(const AngularAcceleration alphaIn, const UnitOfMeasure::TimeSq dtSqIn) { SetFrom(alphaIn, dtSqIn); }
         explicit Rotation(const AngularVelocity omegaIn, const UnitOfMeasure::Time dtIn) { SetFrom(omegaIn, dtIn); }
-        explicit Rotation(const Quaternion& quatIn) { Set(quatIn); }
-        explicit Rotation(const float& magIn, const float3& dirIn) { _magnitude = abs(magIn); _unit_direction = float3::Normal(dirIn); if (_magnitude != magIn) { _unit_direction = -_unit_direction; }; CalculateQuat(); }
-        explicit Rotation(const UnitOfMeasure::Angle& l, const float3& eulerIn) { _magnitude = abs(l); _unit_direction = float3::Normal(eulerIn); if (_magnitude != l) { _unit_direction = -_unit_direction; }; CalculateQuat(); }
-        Rotation(const float3& vectorIn) { _magnitude = float3::Magnitude(vectorIn); _unit_direction = float3::Normal(vectorIn); CalculateQuat(); }
+        explicit Rotation(const Quaternion& QuaternionIn) { Set(QuaternionIn); }
+        explicit Rotation(const float& magIn, const float3& dirIn) { _magnitude = abs(magIn); _unit_direction = float3::Normal(dirIn); if (_magnitude != magIn) { _unit_direction = -_unit_direction; }; CalculateQuaternion(); }
+        explicit Rotation(const UnitOfMeasure::Angle& l, const float3& eulerIn) { _magnitude = abs(l); _unit_direction = float3::Normal(eulerIn); if (_magnitude != l) { _unit_direction = -_unit_direction; }; CalculateQuaternion(); }
+        Rotation(const float3& vectorIn) { _magnitude = float3::Magnitude(vectorIn); _unit_direction = float3::Normal(vectorIn); CalculateQuaternion(); }
         Rotation(const Rotation &in) { *this = in; } // forward to copy assignment
         Rotation(Rotation &&in) noexcept { *this = std::move(in); } // forward to move assignment
 
@@ -144,9 +144,9 @@ namespace King {
         float                               GetValueSI() const { return UnitOfMeasure::m * _magnitude; }
         // Assignments
         // Note: set unit direction before magnitude in case sign of magnitude is switched
-        void                                Set(const Quaternion& quatIn) { _rotation = quatIn; float3 eulerXYZ(quatIn.GetEulerAngles()); _magnitude = float3::Magnitude(eulerXYZ); _unit_direction = float3::Normal(eulerXYZ); }
-        void                                Set_magnitude(const float& _magnitude_IN_m) { _magnitude = abs(_magnitude_IN_m); if (_magnitude != _magnitude_IN_m) { _unit_direction = -_unit_direction; }; CalculateQuat(); }
-        void __vectorcall                   Set_unit_direction(const float3 _unit_direction_IN) { _unit_direction = float3::Normal(_unit_direction_IN); CalculateQuat(); }
+        void                                Set(const Quaternion& QuaternionIn) { _rotation = QuaternionIn; float3 eulerXYZ(QuaternionIn.GetEulerAngles()); _magnitude = float3::Magnitude(eulerXYZ); _unit_direction = float3::Normal(eulerXYZ); }
+        void                                Set_magnitude(const float& _magnitude_IN_m) { _magnitude = abs(_magnitude_IN_m); if (_magnitude != _magnitude_IN_m) { _unit_direction = -_unit_direction; }; CalculateQuaternion(); }
+        void __vectorcall                   Set_unit_direction(const float3 _unit_direction_IN) { _unit_direction = float3::Normal(_unit_direction_IN); CalculateQuaternion(); }
         inline void                         SetZero() { _magnitude = 0.f; _unit_direction = DirectX::g_XMZero; }
         inline void                         SetZeroIfNear(const float epsilon = 0.00005f) { auto mask = DirectX::XMVectorLess(DirectX::XMVectorAbs(_unit_direction), DirectX::XMVectorReplicate(epsilon)); DirectX::XMVectorSelect(_unit_direction, DirectX::XMVectorZero(), mask); _unit_direction.Normalize(); }
 
@@ -161,7 +161,7 @@ namespace King {
         friend void to_json(json& j, const Rotation& from);
         friend void from_json(const json& j, Rotation& to);
     private:
-        inline void                         CalculateQuat() { _rotation = Quaternion(float3(_magnitude * _unit_direction).Get_XMFLOAT3()); }
+        inline void                         CalculateQuaternion() { _rotation = Quaternion(float3(_magnitude * _unit_direction).Get_XMFLOAT3()); }
     };
     // Input & Output Function forward declarations
     std::ostream& operator<< (std::ostream& os, const Rotation& in);

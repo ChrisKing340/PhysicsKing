@@ -49,7 +49,8 @@ SOFTWARE.
 #include "..\Physics\Velocity.h"
 #include "..\Physics\Distance.h"
 // 3rdPart namespace
-#include "..\..\json\single_include\nlohmann\json.hpp"
+// Json for modern C++ https://github.com/nlohmann/json
+#include "..\json\single_include\nlohmann\json.hpp"
 using json = nlohmann::json;
 
 /******************************************************************************
@@ -83,13 +84,13 @@ namespace King {
         // Creation/Life cycle
         static std::shared_ptr<Position> Create() { return std::make_shared<Position>(); }
         Position() { SetW(1.f); }
-        inline Position(const FloatPoint3& vectorIn) { Set(vectorIn); }
-        explicit inline Position(const float x, const float y, const float z) { Set(FloatPoint3(x, y, z)); }
-        explicit inline Position(const DirectX::XMVECTOR &vIn) { Set(FloatPoint3(vIn)); }
-        explicit inline Position(const DirectX::XMVECTORF32 &vIn) { Set(FloatPoint3(vIn)); }
-        explicit inline Position(const FloatPoint2& vIn) { Set(vIn); }
-        explicit inline Position(const FloatPoint4& vectorIn) { Set(static_cast<FloatPoint3>(vectorIn)); }
-        explicit inline Position(const Distance &distanceIn) { Set(static_cast<FloatPoint3>(distanceIn)); }
+        inline Position(const float3& vectorIn) { Set(vectorIn); }
+        explicit inline Position(const float x, const float y, const float z) { Set(float3(x, y, z)); }
+        explicit inline Position(const DirectX::XMVECTOR &vIn) { Set(float3(vIn)); }
+        explicit inline Position(const DirectX::XMVECTORF32 &vIn) { Set(float3(vIn)); }
+        explicit inline Position(const float2& vIn) { Set(vIn); }
+        explicit inline Position(const float4& vectorIn) { Set(static_cast<float3>(vectorIn)); }
+        explicit inline Position(const Distance &distanceIn) { Set(static_cast<float3>(distanceIn)); }
         Position(const Position &in) { *this = in; } // forward to copy assignment
         Position(Position &&in) noexcept { *this = std::move(in); } // forward to move assignment
 
@@ -99,11 +100,11 @@ namespace King {
         static const std::wstring UnitW() { return UnitOfMeasure::Length::_wunit; }
 
         // Conversions
-        inline explicit operator float() const { return King::FloatPoint3::Magnitude(v); }
-        inline explicit operator UnitOfMeasure::Length() const { return UnitOfMeasure::Length(King::FloatPoint3::Magnitude(v)); }
+        inline explicit operator float() const { return King::float3::Magnitude(v); }
+        inline explicit operator UnitOfMeasure::Length() const { return UnitOfMeasure::Length(King::float3::Magnitude(v)); }
         inline explicit operator DirectX::XMVECTOR() const { return v; }
-        inline operator King::FloatPoint3() const { return static_cast<King::FloatPoint3>(v); } // allow implicit for a default behavior
-        inline explicit operator King::FloatPoint4() const { return v; }
+        inline operator King::float3() const { return static_cast<King::float3>(v); } // allow implicit for a default behavior
+        inline explicit operator King::float4() const { return v; }
         // Comparators
         inline bool operator<  (const Position& rhs) const { return DirectX::XMVector3Less(v, rhs.GetVecConst()); }
         inline bool operator<= (const Position& rhs) const { return DirectX::XMVector3LessOrEqual(v, rhs.GetVecConst()); }
@@ -114,48 +115,48 @@ namespace King {
         // Operators 
         void * operator new (size_t size) { return _aligned_malloc(size, 16); }
         void   operator delete (void *p) { _aligned_free(static_cast<Position*>(p)); }
-        inline Position& operator= (const DirectX::XMVECTOR &in) { Set(FloatPoint4(in,1.f)); return *this; } // copy assignment
-        //inline Position & operator= (const XMVECTORF32 &in) { Set(FloatPoint4(in,1.f)); return *this; } // copy assignment
-        inline Position& operator= (const FloatPoint2& in) { Set(in); return *this; } // copy assignment
-        inline Position& operator= (const FloatPoint3 &in) { Set(in); return *this; } // copy assignment
-        inline Position& operator= (const FloatPoint4 &in) { Set(static_cast<FloatPoint3>(in)); return *this; } // copy assignment
+        inline Position& operator= (const DirectX::XMVECTOR &in) { Set(float4(in,1.f)); return *this; } // copy assignment
+        //inline Position & operator= (const XMVECTORF32 &in) { Set(float4(in,1.f)); return *this; } // copy assignment
+        inline Position& operator= (const float2& in) { Set(in); return *this; } // copy assignment
+        inline Position& operator= (const float3 &in) { Set(in); return *this; } // copy assignment
+        inline Position& operator= (const float4 &in) { Set(static_cast<float3>(in)); return *this; } // copy assignment
         inline Position& operator= (const Position &other) { v = other.v; return *this; } // copy assign
         inline Position& operator= (Position &&other) noexcept { std::swap(v, other.v); return *this; } // move assign
         explicit operator bool() const { return (bool)float4::operator bool(); } // valid
         bool operator !() const { return float4::operator !(); } // invalid
         // Math Operators
         inline Position operator- () const { return -Position(v); }
-        inline Position operator+ (const Position & in) const { return Position((FloatPoint3)v + in.v); }
-        inline Distance operator- (const Position & in) const { return Distance((FloatPoint3)v - in.v); }
-        inline Position operator* (const Position & in) const { return Position((FloatPoint3)v * in.v); }
-        inline Position operator/ (const Position & in) const { return Position((FloatPoint3)v / in.v); }
+        inline Position operator+ (const Position & in) const { return Position((float3)v + in.v); }
+        inline Distance operator- (const Position & in) const { return Distance((float3)v - in.v); }
+        inline Position operator* (const Position & in) const { return Position((float3)v * in.v); }
+        inline Position operator/ (const Position & in) const { return Position((float3)v / in.v); }
         inline Position & operator+= (const Position & in) { *this = *this + in; return *this; } 
-        inline Position & operator-= (const Position & in) { *this = Position((FloatPoint3)v - in.v); return *this; }
+        inline Position & operator-= (const Position & in) { *this = Position((float3)v - in.v); return *this; }
         inline Position & operator*= (const Position & in) { *this = *this * in; return *this; }
         inline Position & operator/= (const Position & in) { *this = *this / in; return *this; }
 
-        inline Position operator- (const float & in) const { return Position((FloatPoint3)v - in); }
-        inline Position operator+ (const float & in) const { return Position((FloatPoint3)v + in); }
-        inline Position operator* (const float & in) const { return Position((FloatPoint3)v * in); }
-        inline Position operator/ (const float & in) const { return Position((FloatPoint3)v / in); }
+        inline Position operator- (const float & in) const { return Position((float3)v - in); }
+        inline Position operator+ (const float & in) const { return Position((float3)v + in); }
+        inline Position operator* (const float & in) const { return Position((float3)v * in); }
+        inline Position operator/ (const float & in) const { return Position((float3)v / in); }
 
-        inline Position operator- (const Distance &rhs) const { Position ptOut((FloatPoint3)v - (FloatPoint3)(rhs)); return ptOut; }
-        inline Position operator+ (const Distance &rhs) const { Position ptOut((FloatPoint3)v + (FloatPoint3)(rhs)); return ptOut; }
-        inline Position operator* (const Distance &rhs) const { Position ptOut((FloatPoint3)v * (FloatPoint3)(rhs)); return ptOut; }
-        inline Position operator/ (const Distance &rhs) const { Position ptOut((FloatPoint3)v / (FloatPoint3)(rhs)); return ptOut; }
+        inline Position operator- (const Distance &rhs) const { Position ptOut((float3)v - (float3)(rhs)); return ptOut; }
+        inline Position operator+ (const Distance &rhs) const { Position ptOut((float3)v + (float3)(rhs)); return ptOut; }
+        inline Position operator* (const Distance &rhs) const { Position ptOut((float3)v * (float3)(rhs)); return ptOut; }
+        inline Position operator/ (const Distance &rhs) const { Position ptOut((float3)v / (float3)(rhs)); return ptOut; }
         inline Position & operator+= (const Distance & in) { *this = *this + in; return *this; }
         inline Position & operator-= (const Distance & in) { *this = *this - in; return *this; }
         inline Position & operator*= (const Distance & in) { *this = *this * in; return *this; }
         inline Position & operator/= (const Distance & in) { *this = *this / in; return *this; }
 
-        inline Position operator- (const FloatPoint3 &rhs) const { Position ptOut((FloatPoint3)v - (FloatPoint3)(rhs)); return ptOut; }
-        inline Position operator+ (const FloatPoint3 &rhs) const { Position ptOut((FloatPoint3)v + (FloatPoint3)(rhs)); return ptOut; }
-        inline Position operator* (const FloatPoint3 &rhs) const { Position ptOut((FloatPoint3)v * (FloatPoint3)(rhs)); return ptOut; }
-        inline Position operator/ (const FloatPoint3 &rhs) const { Position ptOut((FloatPoint3)v / (FloatPoint3)(rhs)); return ptOut; }
-        inline Position & operator-= (const FloatPoint3 &rhs) { *this = *this - rhs; return *this; }
-        inline Position & operator+= (const FloatPoint3 &rhs) { *this = *this + rhs; return *this; }
-        inline Position & operator*= (const FloatPoint3 &rhs) { *this = *this * rhs; return *this; }
-        inline Position & operator/= (const FloatPoint3 &rhs) { *this = *this / rhs; return *this; }
+        inline Position operator- (const float3 &rhs) const { Position ptOut((float3)v - (float3)(rhs)); return ptOut; }
+        inline Position operator+ (const float3 &rhs) const { Position ptOut((float3)v + (float3)(rhs)); return ptOut; }
+        inline Position operator* (const float3 &rhs) const { Position ptOut((float3)v * (float3)(rhs)); return ptOut; }
+        inline Position operator/ (const float3 &rhs) const { Position ptOut((float3)v / (float3)(rhs)); return ptOut; }
+        inline Position & operator-= (const float3 &rhs) { *this = *this - rhs; return *this; }
+        inline Position & operator+= (const float3 &rhs) { *this = *this + rhs; return *this; }
+        inline Position & operator*= (const float3 &rhs) { *this = *this * rhs; return *this; }
+        inline Position & operator/= (const float3 &rhs) { *this = *this / rhs; return *this; }
 
         inline Position & operator*= (const DirectX::XMMATRIX &m) { v = DirectX::XMVector4Transform(v, m); return *this; }
         friend Position operator* (Position lhs, const DirectX::XMMATRIX &m) { lhs *= m; return lhs; } // invokes std::move(lhs)
@@ -174,8 +175,8 @@ namespace King {
         // Assignments
         inline void __vectorcall            Set(const float2 positionXYIn) { v = positionXYIn; SetZ(0.0f); SetW(1.0f); }
         inline void __vectorcall            Set(const float3 positionXYZIn) { v = positionXYZIn; SetW(1.0f); }
-        inline void __vectorcall            Set(const DirectX::XMVECTOR positionXYZIn) { Set(FloatPoint3(positionXYZIn)); }
-        inline void __vectorcall            Set(const DirectX::XMVECTORF32 positionXYZIn) { Set(FloatPoint3(positionXYZIn)); }
+        inline void __vectorcall            Set(const DirectX::XMVECTOR positionXYZIn) { Set(float3(positionXYZIn)); }
+        inline void __vectorcall            Set(const DirectX::XMVECTORF32 positionXYZIn) { Set(float3(positionXYZIn)); }
         void __vectorcall                   Set_SphericalCoordinates(float3 rhoThetaPhiIn) { DirectX::XMFLOAT3 rtp(rhoThetaPhiIn); Set_SphericalCoordinates(rtp.x, rtp.y, rtp.z); }
         void                                Set_SphericalCoordinates(const float& rhoIn, const float& thetaIn, const float& phiIn);
 

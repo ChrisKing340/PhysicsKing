@@ -30,7 +30,7 @@ Copyright (c) 2023 Christopher H. King
 
 Background of the Author:   
                 Chris graduated from Purdue University with a Bachelor of 
-                Science in Mechanical Engineering (BSME). He is a licensed professional
+                Science in Mechanical Engineering. He is a licensed professional
                 engineer and works as a Director of Engineering with more than 25 years 
                 of professional experience.
 

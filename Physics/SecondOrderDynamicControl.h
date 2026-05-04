@@ -19,7 +19,7 @@
 *   
 *   Remarks:    Frame rate inconsistencies where the time step varies often and greatly
 *               failes the algorithm, introducing jerky behavior and in some extremes
-*               the equation is unstable, going to infinity. Reference #2 solved this
+*               the eQuaternionion is unstable, going to infinity. Reference #2 solved this
 *               issue, making this a generalized function to smooth out motion for use
 *               in games.
 * 

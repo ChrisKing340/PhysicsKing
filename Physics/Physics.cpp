@@ -315,8 +315,8 @@ std::wostream& King::operator<< (std::wostream& os, const Rotation& in) { return
 std::istream& King::operator>> (std::istream& is, Rotation& out) { return is >> out._magnitude >> out._unit_direction; } // binary in
 std::wistream& King::operator>> (std::wistream& is, Rotation& out) { return is >> out._magnitude >> out._unit_direction; } // binary in
 // json
-void King::to_json(json& j, const Rotation& from) { j = json{ {"AngleMag", from.Get_magnitude()}, {"EulerXYZ", from.Get_unit_direction()}, {"Quat", from.GetQuaternion()} }; }
-void King::from_json(const json& j, Rotation& to) { j.at("AngleMag").get_to(to.Get_magnitude()); j.at("EulerXYZ").get_to(to.Get_unit_direction()); j.at("Quat").get_to(to.GetQuaternion()); }
+void King::to_json(json& j, const Rotation& from) { j = json{ {"AngleMag", from.Get_magnitude()}, {"EulerXYZ", from.Get_unit_direction()}, {"Quaternion", from.GetQuaternion()} }; }
+void King::from_json(const json& j, Rotation& to) { j.at("AngleMag").get_to(to.Get_magnitude()); j.at("EulerXYZ").get_to(to.Get_unit_direction()); j.at("Quaternion").get_to(to.GetQuaternion()); }
 // operators
 Rotation King::operator*(const AngularVelocity& velIn, const UnitOfMeasure::Time& t)
 {
@@ -333,7 +333,7 @@ void King::Rotation::SetFrom(AngularAcceleration alphaIn, UnitOfMeasure::TimeSq 
     float change_theta = 0.5f * alphaIn.Get_magnitude() * tSqIn;
     Set_magnitude(change_theta);
     Set_unit_direction(alphaIn.Get_unit_direction());
-    CalculateQuat();
+    CalculateQuaternion();
 }
 void King::Rotation::SetFrom(AngularVelocity omegaIn, UnitOfMeasure::Time tIn)
 {
@@ -341,7 +341,7 @@ void King::Rotation::SetFrom(AngularVelocity omegaIn, UnitOfMeasure::Time tIn)
     float change_theta = omegaIn.Get_magnitude() * tIn;
     Set_magnitude(change_theta);
     Set_unit_direction(omegaIn.Get_unit_direction());
-    CalculateQuat();
+    CalculateQuaternion();
 }
 // functions
 /******************************************************************************
